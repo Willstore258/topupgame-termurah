@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>System Warning</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    overflow: hidden;
+    font-family: monospace;
+}
+
+/* =========================
+   LAYAR HITAM AWAL
+========================= */
+
+#blackScreen {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    z-index: 9999;
+}
+
+/* =========================
+   WARNING
+========================= */
+
+#warning {
+    display: none;
+
+    position: fixed;
+    inset: 0;
+
+    background: #111;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+}
+
+.box {
+    width: 100%;
+    max-width: 650px;
+
+    padding: 50px 30px;
+
+    background: #000;
+
+    border: 3px solid #00ff00;
+
+    border-radius: 15px;
+
+    text-align: center;
+
+    box-shadow:
+        0 0 10px #00ff00,
+        0 0 35px rgba(0,255,0,.35);
+}
+
+/* =========================
+   JUDUL
+========================= */
+
+.title {
+    color: red;
+
+    font-family: monospace;
+
+    font-size: 29px;
+
+    font-weight: bold;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 30px;
+}
+
+.warning-icon {
+    font-family: Arial;
+
+    font-size: 40px;
+
+    vertical-align: middle;
+
+    margin-right: 12px;
+}
+
+/* =========================
+   PESAN
+========================= */
+
+.message {
+    color: #00ff00;
+
+    font-size: 18px;
+
+    line-height: 1.9;
+
+    letter-spacing: 2px;
+
+    margin-bottom: 30px;
+}
+
+#virusNumber {
+    font-weight: bold;
+}
+
+/* =========================
+   PROGRESS BAR
+========================= */
+
+.progress-container {
+    width: 90%;
+
+    height: 30px;
+
+    margin: auto;
+
+    background: #222;
+
+    border: 2px solid #008800;
+
+    border-radius: 7px;
+
+    overflow: hidden;
+}
+
+.progress {
+    width: 0%;
+
+    height: 100%;
+
+    background: #00ff00;
+
+    box-shadow:
+        0 0 10px #00ff00;
+
+    transition: width .05s linear;
+}
+
+/* =========================
+   PERSENTASE
+========================= */
+
+.percent {
+    margin-top: 10px;
+
+    color: #00ff00;
+
+    font-size: 18px;
+
+    font-weight: bold;
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+.stop {
+    margin-top: 40px;
+
+    padding: 16px 38px;
+
+    border: none;
+
+    border-radius: 7px;
+
+    background: red;
+
+    color: white;
+
+    font-size: 18px;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+    box-shadow: 0 0 10px rgba(255,0,0,.4);
+}
+
+.stop:active {
+    transform: scale(.95);
+}
+
+/* =========================
+   PRANK MESSAGE
+========================= */
+
+.prank {
+    display: none;
+
+    margin-top: 25px;
+
+    color: #00ff00;
+
+    font-family: Arial;
+
+    font-size: 21px;
+
+    font-weight: bold;
+
+    line-height: 1.7;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 500px) {
+
+    .box {
+        padding: 40px 18px;
+    }
+
+    .title {
+        font-size: 23px;
+    }
+
+    .warning-icon {
+        font-size: 32px;
+    }
+
+    .message {
+        font-size: 15px;
+        letter-spacing: 1px;
+    }
+
+    .stop {
+        font-size: 16px;
+        padding: 15px 28px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     LAYAR HITAM
+========================= -->
+
+<div id="blackScreen"></div>
+
+
+<!-- =========================
+     WARNING PRANK
+========================= -->
+
+<div id="warning">
+
+    <div class="box">
+
+        <div class="title">
+            <span class="warning-icon">⚠️</span>
+            PERINGATAN BAHAYA!
+        </div>
+
+
+        <div class="message">
+
+            HP/Laptop kamu terdeteksi terinfeksi
+
+            <br>
+
+            <span id="virusNumber">99</span>
+            virus!
+
+            <br>
+
+            Mengunduh ulang seluruh
+            <br>
+            data system...
+
+        </div>
+
+
+        <!-- PROGRESS -->
+
+        <div class="progress-container">
+
+            <div
+                class="progress"
+                id="progress">
+            </div>
+
+        </div>
+
+
+        <!-- ANGKA PERSEN -->
+
+        <div class="percent">
+
+            <span id="percentText">0</span>%
+
+        </div>
+
+
+        <!-- BUTTON -->
+
+        <button
+            class="stop"
+            id="stopButton"
+            onclick="stopPrank()">
+
+            HENTIKAN PROSES
+
+        </button>
+
+
+        <!-- PRANK -->
+
+        <div
+            class="prank"
+            id="prankText">
+
+            😂 TENANG BRO! 😂
+
+            <br>
+
+            INI CUMA PRANK 🗿🤣
+
+            <br>
+
+            Tidak ada data yang dihapus.
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+/* ==========================================
+   KONFIGURASI
+========================================== */
+
+/*
+   2 menit = 120000 ms
+
+   Kalau mau testing cepat,
+   ubah menjadi 4000 = 4 detik.
+*/
+
+const BLACK_SCREEN_TIME = 4000;
+
+
+/* ==========================================
+   TUNGGU 2 MENIT
+========================================== */
+
+setTimeout(function() {
+
+    document.getElementById("blackScreen").style.display = "none";
+
+    document.getElementById("warning").style.display = "flex";
+
+    startFakeProcess();
+
+}, BLACK_SCREEN_TIME);
+
+
+/* ==========================================
+   PROGRESS PALSU
+========================================== */
+
+function startFakeProcess() {
+
+    const progressBar =
+        document.getElementById("progress");
+
+    const percentText =
+        document.getElementById("percentText");
+
+    const virusNumber =
+        document.getElementById("virusNumber");
+
+
+    /*
+       Tahapan progress
+
+       10%
+       25%
+       60%
+       95%
+       100%
+    */
+
+    const stages = [
+
+        {
+            percent: 10,
+            duration: 5000
+        },
+
+        {
+            percent: 25,
+            duration: 8000
+        },
+
+        {
+            percent: 60,
+            duration: 12000
+        },
+
+        {
+            percent: 95,
+            duration: 15000
+        },
+
+        {
+            percent: 100,
+            duration: 8000
+        }
+
+    ];
+
+
+    let current = 0;
+
+    let stageIndex = 0;
+
+
+    function nextStage() {
+
+        if (stageIndex >= stages.length) {
+
+            /*
+               Setelah 100%
+               berhenti sebentar.
+
+               Tidak melakukan apa pun
+               terhadap perangkat.
+            */
+
+            return;
+        }
+
+
+        const target =
+            stages[stageIndex].percent;
+
+        const duration =
+            stages[stageIndex].duration;
+
+
+        const startValue = current;
+
+        const difference =
+            target - startValue;
+
+
+        const startTime =
+            Date.now();
+
+
+        const animation =
+            setInterval(function() {
+
+                const elapsed =
+                    Date.now() - startTime;
+
+
+                const ratio =
+                    Math.min(
+                        elapsed / duration,
+                        1
+                    );
+
+
+                current =
+                    startValue +
+                    difference * ratio;
+
+
+                /*
+                   Update progress bar
+                */
+
+                progressBar.style.width =
+                    current + "%";
+
+
+                /*
+                   Update angka %
+                */
+
+                percentText.textContent =
+                    Math.floor(current);
+
+
+                /*
+                   Angka virus berubah
+                */
+
+                if (current >= 10 &&
+                    current < 25) {
+
+                    virusNumber.textContent =
+                        "99";
+                }
+
+
+                if (current >= 25 &&
+                    current < 60) {
+
+                    virusNumber.textContent =
+                        "147";
+                }
+
+
+                if (current >= 60 &&
+                    current < 95) {
+
+                    virusNumber.textContent =
+                        "326";
+                }
+
+
+                if (current >= 95) {
+
+                    virusNumber.textContent =
+                        "999";
+                }
+
+
+                /*
+                   Tahap selesai
+                */
+
+                if (ratio >= 1) {
+
+                    clearInterval(animation);
+
+                    current = target;
+
+                    percentText.textContent =
+                        target;
+
+
+                    stageIndex++;
+
+
+                    /*
+                       Jeda 1 detik
+                       sebelum naik lagi
+                    */
+
+                    setTimeout(
+                        nextStage,
+                        1000
+                    );
+                }
+
+            }, 50);
+        }
+
+
+    nextStage();
+}
+
+
+/* ==========================================
+   HENTIKAN PRANK
+========================================== */
+
+function stopPrank() {
+
+    document.getElementById("stopButton")
+        .style.display = "none";
+
+
+    document.getElementById("prankText")
+        .style.display = "block";
+
+
+    document.querySelector(".message")
+        .innerHTML =
+        "PROSES BERHASIL DIHENTIKAN!";
+
+
+    document.querySelector(".progress")
+        .style.width = "100%";
+
+
+    document.getElementById("percentText")
+        .textContent = "100";
+}
+
+</script>
+
+</body>
+</html>
